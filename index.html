@@ -496,6 +496,17 @@
       </div>
     </div>
 
+    <div class="score-panel">
+      <h3>✏️ Lesson 1 Progress</h3>
+      <div id="progress-label-1" style="font-size:1rem;color:var(--text-muted);margin-bottom:8px;">How many fields did you fill in?</div>
+      <div class="score-num" id="score-display-1">—</div>
+      <div style="font-size:0.9rem;color:var(--text-muted);margin-top:4px;">fields filled in</div>
+      <div class="progress-bar-wrap" style="max-width:300px;margin:14px auto 0;">
+        <div class="progress-bar" id="prog-bar-1" style="width:0%"></div>
+      </div>
+      <button class="btn-save" onclick="updateLessonProgress(0, 'score-display-1', 'prog-bar-1', 'progress-label-1')">📊 Check Lesson 1 Progress</button>
+    </div>
+
   </div>
 
   <!-- ══════════════════════════════════════════
@@ -592,6 +603,17 @@
       </table>
     </div>
 
+    <div class="score-panel">
+      <h3>✏️ Lesson 2 Progress</h3>
+      <div id="progress-label-2" style="font-size:1rem;color:var(--text-muted);margin-bottom:8px;">How many fields did you fill in?</div>
+      <div class="score-num" id="score-display-2">—</div>
+      <div style="font-size:0.9rem;color:var(--text-muted);margin-top:4px;">fields filled in</div>
+      <div class="progress-bar-wrap" style="max-width:300px;margin:14px auto 0;">
+        <div class="progress-bar" id="prog-bar-2" style="width:0%"></div>
+      </div>
+      <button class="btn-save" onclick="updateLessonProgress(1, 'score-display-2', 'prog-bar-2', 'progress-label-2')">📊 Check Lesson 2 Progress</button>
+    </div>
+
   </div>
 
   <!-- ══════════════════════════════════════════
@@ -677,10 +699,18 @@
       </div>
     </div>
 
-  </div>
+    <div class="score-panel">
+      <h3>✏️ Lesson 3 Progress</h3>
+      <div id="progress-label-3" style="font-size:1rem;color:var(--text-muted);margin-bottom:8px;">How many fields did you fill in?</div>
+      <div class="score-num" id="score-display-3">—</div>
+      <div style="font-size:0.9rem;color:var(--text-muted);margin-top:4px;">fields filled in</div>
+      <div class="progress-bar-wrap" style="max-width:300px;margin:14px auto 0;">
+        <div class="progress-bar" id="prog-bar-3" style="width:0%"></div>
+      </div>
+      <button class="btn-save" onclick="updateLessonProgress(2, 'score-display-3', 'prog-bar-3', 'progress-label-3')">📊 Check Lesson 3 Progress</button>
+    </div>
 
-  <!-- ══════════════════════════════════════════
-       REVIEW
+  </div>
   ══════════════════════════════════════════ -->
   <div class="lesson" id="lesson-3">
 
@@ -846,7 +876,20 @@
     saveAll();
   }
 
-  // ─── Progress bar ───
+  // ─── Progress bar — per lesson ───
+  function updateLessonProgress(lessonIndex, scoreId, barId, labelId) {
+    const lesson = document.getElementById('lesson-' + lessonIndex);
+    const inputs = lesson.querySelectorAll('input[type="text"], textarea');
+    let filled = 0;
+    inputs.forEach(el => { if (el.value.trim().length > 0) filled++; });
+    const total = inputs.length;
+    const pct = Math.round((filled / total) * 100);
+    document.getElementById(scoreId).textContent = filled + ' / ' + total;
+    document.getElementById(barId).style.width = pct + '%';
+    document.getElementById(labelId).textContent = `You filled ${pct}% of Lesson ${lessonIndex + 1}!`;
+  }
+
+  // ─── Progress bar — full unit (Review tab) ───
   function updateProgress() {
     const allInputs = document.querySelectorAll('input[type="text"], textarea');
     let filled = 0;
@@ -855,7 +898,7 @@
     const pct = Math.round((filled / total) * 100);
     document.getElementById('score-display').textContent = filled + ' / ' + total;
     document.getElementById('prog-bar').style.width = pct + '%';
-    document.getElementById('progress-label').textContent = `You filled ${pct}% of the worksheet!`;
+    document.getElementById('progress-label').textContent = `You filled ${pct}% of the whole worksheet!`;
   }
 
   // ─── Clear all (teacher reset button) ───
