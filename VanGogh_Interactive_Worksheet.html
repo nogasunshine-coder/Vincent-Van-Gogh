@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vincent Van Gogh — Interactive Worksheet</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --blue: #1565C0;
+    --blue-light: #DCE9F5;
+    --blue-mid: #1976D2;
+    --gold: #F9A825;
+    --gold-light: #FFF8E1;
+    --green-light: #E8F5E9;
+    --text: #1a1a2e;
+    --text-muted: #666;
+    --white: #FFFFFF;
+    --bg: #F5F7FA;
+    --border: #C5D8EF;
+    --answered: #E8F5E9;
+    --answered-border: #4CAF50;
+    --radius: 12px;
+    --shadow: 0 2px 16px rgba(21,101,192,0.10);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Lato', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* ─── HEADER ─── */
+  .hero {
+    background: linear-gradient(135deg, #0D47A1 0%, #1976D2 60%, #42A5F5 100%);
+    padding: 48px 24px 36px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: "";
+    position: absolute; inset: 0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  }
+  .hero-stars {
+    font-size: 2.5rem;
+    margin-bottom: 12px;
+    opacity: 0.9;
+  }
+  .hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 5vw, 3.4rem);
+    color: #fff;
+    font-weight: 900;
+    letter-spacing: 2px;
+    text-shadow: 0 2px 12px rgba(0,0,0,0.2);
+  }
+  .hero p {
+    color: rgba(255,255,255,0.85);
+    font-size: 1.05rem;
+    margin-top: 8px;
+    font-weight: 300;
+    letter-spacing: 1px;
+  }
+  .hero-badges {
+    display: flex; gap: 10px; justify-content: center; margin-top: 18px; flex-wrap: wrap;
+  }
+  .badge {
+    background: rgba(255,255,255,0.18);
+    border: 1px solid rgba(255,255,255,0.35);
+    color: #fff;
+    padding: 4px 14px;
+    border-radius: 100px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  /* ─── NAVIGATION ─── */
+  .nav-bar {
+    background: #fff;
+    border-bottom: 2px solid var(--blue-light);
+    display: flex;
+    justify-content: center;
+    gap: 0;
+    position: sticky; top: 0; z-index: 100;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+  }
+  .nav-btn {
+    padding: 14px 22px;
+    background: none;
+    border: none;
+    border-bottom: 3px solid transparent;
+    font-family: 'Lato', sans-serif;
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+  .nav-btn:hover { color: var(--blue); background: var(--blue-light); }
+  .nav-btn.active {
+    color: var(--blue);
+    border-bottom-color: var(--blue);
+    background: var(--blue-light);
+  }
+
+  /* ─── MAIN ─── */
+  .container { max-width: 860px; margin: 0 auto; padding: 32px 20px 60px; }
+
+  /* ─── LESSON SECTIONS ─── */
+  .lesson { display: none; }
+  .lesson.active { display: block; }
+
+  .lesson-header {
+    background: linear-gradient(135deg, var(--blue) 0%, var(--blue-mid) 100%);
+    border-radius: var(--radius);
+    padding: 24px 28px;
+    margin-bottom: 28px;
+    color: #fff;
+  }
+  .lesson-header .label {
+    font-size: 0.75rem; font-weight: 700; letter-spacing: 2px;
+    text-transform: uppercase; opacity: 0.75; margin-bottom: 6px;
+  }
+  .lesson-header h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.8rem; font-weight: 700; color: #fff;
+  }
+  .lesson-header .meta {
+    margin-top: 8px; font-size: 0.85rem; opacity: 0.8;
+  }
+
+  /* ─── CARDS ─── */
+  .card {
+    background: #fff;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 24px 28px;
+    margin-bottom: 24px;
+    border-left: 4px solid var(--blue);
+  }
+  .card.yellow { border-left-color: var(--gold); }
+  .card.green { border-left-color: #4CAF50; }
+  .card.info { background: var(--blue-light); border-left-color: var(--blue-mid); }
+
+  .card h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.2rem;
+    color: var(--blue);
+    margin-bottom: 14px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border);
+  }
+  .card.yellow h3 { color: #E65100; }
+  .card.green h3 { color: #2E7D32; }
+
+  /* ─── TEXT BLOCKS ─── */
+  .reading-text {
+    background: var(--blue-light);
+    border-radius: 8px;
+    padding: 20px 22px;
+    margin-bottom: 18px;
+    line-height: 1.85;
+    font-size: 1rem;
+  }
+  .reading-text p + p { margin-top: 12px; }
+
+  /* ─── WORD BANK ─── */
+  .word-bank {
+    display: flex; flex-wrap: wrap; gap: 8px;
+    background: var(--gold-light);
+    border-radius: 8px; padding: 14px 18px;
+    margin-bottom: 18px;
+    border: 1px solid #FFE082;
+  }
+  .word-chip {
+    background: var(--gold);
+    color: #5D4037;
+    padding: 4px 12px;
+    border-radius: 100px;
+    font-weight: 700; font-size: 0.88rem;
+    letter-spacing: 0.5px;
+  }
+
+  /* ─── QUESTIONS ─── */
+  .question-block { margin-bottom: 18px; }
+  .question-block label {
+    display: block;
+    font-weight: 700; color: var(--blue); margin-bottom: 6px; font-size: 0.95rem;
+  }
+  .question-block .hint {
+    font-size: 0.82rem; color: var(--text-muted); margin-bottom: 6px; font-weight: 400;
+  }
+
+  input[type="text"], textarea {
+    width: 100%;
+    padding: 10px 14px;
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    font-family: 'Lato', sans-serif;
+    font-size: 0.95rem;
+    color: var(--text);
+    background: #FAFCFF;
+    transition: border-color 0.2s, background 0.2s;
+    resize: vertical;
+  }
+  input[type="text"]:focus, textarea:focus {
+    outline: none;
+    border-color: var(--blue);
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(21,101,192,0.1);
+  }
+  input[type="text"].filled, textarea.filled {
+    border-color: var(--answered-border);
+    background: var(--answered);
+  }
+  textarea { min-height: 70px; }
+
+  /* ─── TABLE ─── */
+  .vocab-table { width: 100%; border-collapse: collapse; margin-bottom: 14px; }
+  .vocab-table th {
+    background: var(--blue);
+    color: #fff;
+    padding: 10px 14px;
+    text-align: left;
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+  .vocab-table td {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.95rem;
+  }
+  .vocab-table tr:nth-child(even) td { background: #F0F6FF; }
+
+  /* comparison table */
+  .compare-table { width: 100%; border-collapse: collapse; margin-bottom: 14px; }
+  .compare-table th {
+    background: var(--blue);
+    color: #fff;
+    padding: 10px 14px;
+    text-align: left;
+    font-size: 0.85rem;
+  }
+  .compare-table .cat {
+    background: var(--blue-light);
+    font-weight: 700;
+    font-size: 0.88rem;
+    color: var(--blue);
+    padding: 10px 14px;
+    border: 1px solid var(--border);
+    white-space: nowrap;
+  }
+  .compare-table td {
+    border: 1px solid var(--border);
+    padding: 8px 12px;
+    vertical-align: top;
+  }
+  .compare-table input[type="text"] { border: none; background: transparent; font-size: 0.9rem; padding: 4px; }
+  .compare-table input[type="text"]:focus { background: #fff; border-radius: 4px; }
+
+  /* ─── VIDEO ─── */
+  .video-wrapper {
+    background: #000;
+    border-radius: var(--radius);
+    overflow: hidden;
+    margin-bottom: 18px;
+    aspect-ratio: 16/9;
+    position: relative;
+  }
+  .video-wrapper iframe {
+    width: 100%; height: 100%; border: none; display: block;
+  }
+  .video-placeholder {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    background: linear-gradient(135deg, #0D47A1, #1a237e);
+    color: #fff; text-align: center; padding: 24px;
+  }
+  .video-placeholder .play-icon { font-size: 3.5rem; margin-bottom: 12px; opacity: 0.9; }
+  .video-placeholder p { font-size: 0.95rem; opacity: 0.8; margin-bottom: 16px; }
+  .url-input-area { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+  .url-input-area input {
+    width: 360px; max-width: 100%;
+    padding: 10px 14px; border-radius: 8px; border: 2px solid rgba(255,255,255,0.3);
+    background: rgba(255,255,255,0.12); color: #fff; font-size: 0.9rem;
+  }
+  .url-input-area input::placeholder { color: rgba(255,255,255,0.5); }
+  .btn-load {
+    padding: 10px 20px; border-radius: 8px; border: none;
+    background: var(--gold); color: #5D4037; font-weight: 700;
+    cursor: pointer; font-size: 0.9rem; transition: background 0.2s;
+  }
+  .btn-load:hover { background: #FFB300; }
+
+  /* ─── DISCUSSION ─── */
+  .discussion-options { display: flex; flex-direction: column; gap: 12px; }
+  .disc-card {
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 18px;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+  }
+  .disc-card:hover { border-color: var(--blue); background: var(--blue-light); }
+  .disc-card.selected { border-color: var(--blue); background: var(--blue-light); }
+  .disc-card .num {
+    position: absolute; top: -10px; left: 16px;
+    background: var(--blue); color: #fff;
+    width: 22px; height: 22px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.75rem; font-weight: 700;
+  }
+  .disc-card p { font-style: italic; font-size: 0.95rem; }
+
+  /* ─── PROGRESS ─── */
+  .progress-bar-wrap {
+    background: var(--blue-light); border-radius: 100px; height: 8px; margin-top: 4px;
+  }
+  .progress-bar { height: 8px; border-radius: 100px; background: var(--blue); transition: width 0.4s; }
+
+  /* ─── SCORE PANEL ─── */
+  .score-panel {
+    background: linear-gradient(135deg, #E3F2FD, #EDE7F6);
+    border-radius: var(--radius); padding: 24px; margin-top: 30px; text-align: center;
+    border: 2px solid var(--border);
+  }
+  .score-panel h3 { font-family: 'Playfair Display', serif; font-size: 1.4rem; color: var(--blue); margin-bottom: 10px; }
+  .score-panel .score-num { font-size: 3rem; font-weight: 900; color: var(--blue); }
+  .btn-save {
+    display: inline-block; margin-top: 16px;
+    padding: 12px 28px; background: var(--blue); color: #fff;
+    border: none; border-radius: 8px; font-weight: 700; font-size: 1rem;
+    cursor: pointer; transition: background 0.2s;
+  }
+  .btn-save:hover { background: #0D47A1; }
+
+  /* ─── MULTI INPUT ROW ─── */
+  .multi-input { display: flex; flex-direction: column; gap: 8px; }
+  .multi-input .row { display: flex; gap: 10px; align-items: center; }
+  .multi-input .row label { min-width: 28px; font-weight: 700; color: var(--blue); font-size: 0.9rem; }
+
+  /* ─── NAME FIELD ─── */
+  .name-bar {
+    background: #fff; border-radius: var(--radius); padding: 14px 20px;
+    margin-bottom: 24px; display: flex; align-items: center; gap: 14px;
+    box-shadow: var(--shadow); flex-wrap: wrap;
+  }
+  .name-bar label { font-weight: 700; color: var(--blue); font-size: 0.9rem; white-space: nowrap; }
+  .name-bar input { flex: 1; min-width: 180px; }
+
+  @media (max-width: 600px) {
+    .nav-btn { padding: 12px 12px; font-size: 0.78rem; }
+    .card { padding: 18px 16px; }
+    .lesson-header { padding: 18px 16px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-stars">🌟 🌻 🎨</div>
+  <h1>Vincent Van Gogh</h1>
+  <p>Interactive English Worksheet • Grades 7–9</p>
+  <div class="hero-badges">
+    <span class="badge">3 Lessons</span>
+    <span class="badge">Level A2–B1</span>
+    <span class="badge">Reading + Video + Writing</span>
+  </div>
+</div>
+
+<nav class="nav-bar">
+  <button class="nav-btn active" onclick="showLesson(0, this)">📖 Lesson 1</button>
+  <button class="nav-btn" onclick="showLesson(1, this)">🎨 Lesson 2</button>
+  <button class="nav-btn" onclick="showLesson(2, this)">🎬 Lesson 3</button>
+  <button class="nav-btn" onclick="showLesson(3, this)">📋 Review</button>
+</nav>
+
+<div class="container">
+
+  <!-- NAME -->
+  <div class="name-bar">
+    <label for="student-name">👤 Student Name:</label>
+    <input type="text" id="student-name" placeholder="Write your name here..." oninput="markFilled(this)">
+    <div style="font-size:0.82rem;color:var(--text-muted);">Date: <input type="date" style="border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-size:0.85rem;"></div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       LESSON 1
+  ══════════════════════════════════════════ -->
+  <div class="lesson active" id="lesson-0">
+
+    <div class="lesson-header">
+      <div class="label">Lesson 1 of 3</div>
+      <h2>Who Was Van Gogh?</h2>
+      <div class="meta">⏱ 45 minutes &nbsp;|&nbsp; Vocabulary + Biography + Writing</div>
+    </div>
+
+    <!-- PART A: VOCABULARY -->
+    <div class="card">
+      <h3>Part A — Vocabulary Match</h3>
+      <div class="word-bank">
+        <span class="word-chip">portrait</span>
+        <span class="word-chip">painting</span>
+        <span class="word-chip">unique</span>
+        <span class="word-chip">style</span>
+        <span class="word-chip">series</span>
+        <span class="word-chip">characteristic</span>
+      </div>
+      <p style="margin-bottom:14px;font-size:0.92rem;"><strong>Step 1:</strong> Write the correct word next to its definition.</p>
+      <table class="vocab-table">
+        <tr><th style="width:65%">Definition</th><th>Word</th></tr>
+        <tr><td>A special way of doing or making something</td><td><input type="text" placeholder="..." oninput="markFilled(this)"></td></tr>
+        <tr><td>A group of similar things that come one after another</td><td><input type="text" placeholder="..." oninput="markFilled(this)"></td></tr>
+        <tr><td>A picture made with paint</td><td><input type="text" placeholder="..." oninput="markFilled(this)"></td></tr>
+        <tr><td>A picture of a person's face</td><td><input type="text" placeholder="..." oninput="markFilled(this)"></td></tr>
+        <tr><td>Special and different from everything else</td><td><input type="text" placeholder="..." oninput="markFilled(this)"></td></tr>
+        <tr><td>A quality or feature that belongs to a person or thing</td><td><input type="text" placeholder="..." oninput="markFilled(this)"></td></tr>
+      </table>
+      <p style="margin-bottom:14px;font-size:0.92rem;margin-top:20px;"><strong>Step 2:</strong> Fill in the gaps with words from the box.</p>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div><b>1.</b> This book was very <input type="text" style="width:160px;display:inline-block;margin:0 6px;" oninput="markFilled(this)">. It talked about unusual and strange subjects.</div>
+        <div><b>2.</b> In the card game, you need a <input type="text" style="width:130px;display:inline-block;margin:0 6px;" oninput="markFilled(this)"> of four cards — all the same type.</div>
+        <div><b>3.</b> At the museum, a woman drew a <input type="text" style="width:140px;display:inline-block;margin:0 6px;" oninput="markFilled(this)"> of my friend — she drew her face.</div>
+        <div><b>4.</b> On Wednesday we saw many beautiful <input type="text" style="width:150px;display:inline-block;margin:0 6px;" oninput="markFilled(this)"> at the art gallery.</div>
+        <div><b>5.</b> Shira always dresses beautifully. Her <input type="text" style="width:110px;display:inline-block;margin:0 6px;" oninput="markFilled(this)"> is very special.</div>
+        <div><b>6.</b> Harry Potter's <input type="text" style="width:190px;display:inline-block;margin:0 6px;" oninput="markFilled(this)"> are bravery and kindness.</div>
+      </div>
+    </div>
+
+    <!-- PART B: READING -->
+    <div class="card">
+      <h3>Part B — Reading: Van Gogh's Life</h3>
+      <div class="reading-text">
+        <p><strong>Vincent van Gogh</strong> was born in Holland in 1853. He was a very emotional person, and he did not have a lot of self-confidence. Before he became an artist, he worked in a bookstore and also as an art salesman. He then moved to Belgium to study art.</p>
+        <p>In 1886, he moved to Paris to live with his brother Theo. In Paris, his paintings started to change — the colors became brighter, and his brushstrokes became shorter and faster. But Van Gogh had a difficult personality. He had arguments with friends and did not sleep or eat well.</p>
+        <p>He moved to Arles, in the south of France, and invited his friend Paul Gauguin to come and paint with him. But they had a big fight. After the fight, Van Gogh cut off part of his own ear. He was sent to a hospital called an <em>asylum</em> to get help.</p>
+        <p>In May 1890, he felt better and moved to a small town near Paris. But just two months later, he shot himself and died. He was only 37 years old. During his life, he sold only <strong>one</strong> painting. Today, his paintings are worth millions of dollars.</p>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:16px;">
+        <div class="question-block">
+          <label>1. Where was Van Gogh from?</label>
+          <input type="text" placeholder="Write your answer..." oninput="markFilled(this)">
+        </div>
+        <div class="question-block">
+          <label>2. What did he do before becoming a painter? Give TWO things.</label>
+          <div class="multi-input">
+            <div class="row"><label>a)</label><input type="text" placeholder="First job..." oninput="markFilled(this)"></div>
+            <div class="row"><label>b)</label><input type="text" placeholder="Second job..." oninput="markFilled(this)"></div>
+          </div>
+        </div>
+        <div class="question-block">
+          <label>3. Why was it difficult to be Van Gogh's friend? Find one reason in the text.</label>
+          <textarea placeholder="Write your answer using words from the text..." oninput="markFilled(this)"></textarea>
+        </div>
+        <div class="question-block">
+          <label>4. What did Van Gogh do after the fight with Gauguin?</label>
+          <textarea placeholder="Write your answer..." oninput="markFilled(this)"></textarea>
+        </div>
+        <div class="question-block">
+          <label>5. How old was Van Gogh when he died?</label>
+          <input type="text" placeholder="..." oninput="markFilled(this)">
+        </div>
+        <div class="question-block">
+          <label>6. How many paintings did he sell during his life?</label>
+          <input type="text" placeholder="..." oninput="markFilled(this)">
+        </div>
+      </div>
+    </div>
+
+    <!-- PART C: WRITE -->
+    <div class="card green">
+      <h3>Part C — Write About Van Gogh</h3>
+      <p style="margin-bottom:14px;font-size:0.92rem;">Write THREE sentences about Van Gogh. Use at least one word from the box in each sentence.</p>
+      <div class="word-bank">
+        <span class="word-chip" style="background:#A5D6A7;color:#1B5E20;">unique</span>
+        <span class="word-chip" style="background:#A5D6A7;color:#1B5E20;">style</span>
+        <span class="word-chip" style="background:#A5D6A7;color:#1B5E20;">painting</span>
+        <span class="word-chip" style="background:#A5D6A7;color:#1B5E20;">portrait</span>
+        <span class="word-chip" style="background:#A5D6A7;color:#1B5E20;">characteristic</span>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:12px;margin-top:14px;">
+        <div class="row" style="display:flex;gap:10px;align-items:flex-start;"><strong style="color:#2E7D32;min-width:22px;padding-top:10px;">1.</strong><textarea placeholder="Van Gogh was..." oninput="markFilled(this)" style="flex:1"></textarea></div>
+        <div class="row" style="display:flex;gap:10px;align-items:flex-start;"><strong style="color:#2E7D32;min-width:22px;padding-top:10px;">2.</strong><textarea placeholder="His paintings..." oninput="markFilled(this)" style="flex:1"></textarea></div>
+        <div class="row" style="display:flex;gap:10px;align-items:flex-start;"><strong style="color:#2E7D32;min-width:22px;padding-top:10px;">3.</strong><textarea placeholder="One characteristic..." oninput="markFilled(this)" style="flex:1"></textarea></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       LESSON 2
+  ══════════════════════════════════════════ -->
+  <div class="lesson" id="lesson-1">
+
+    <div class="lesson-header">
+      <div class="label">Lesson 2 of 3</div>
+      <h2>Van Gogh's Famous Paintings</h2>
+      <div class="meta">⏱ 45 minutes &nbsp;|&nbsp; Self-Portraits + Paintings + Tables</div>
+    </div>
+
+    <!-- SELF PORTRAITS -->
+    <div class="card">
+      <h3>Part A — Van Gogh's Self-Portraits</h3>
+      <div class="reading-text">
+        <p>Van Gogh loved painting portraits — pictures of people's faces. Most of all, he loved painting <strong>himself</strong>. He painted himself <strong>37 times</strong> between 1886 and 1889. These pictures are called <em>self-portraits</em>.</p>
+        <p>The self-portraits are all a little different. In some, he has a beard. In some, he is clean-shaven. In one famous portrait, his head is covered with a bandage — after the fight with Gauguin, when he cut his ear.</p>
+        <p>One of his most expensive self-portraits, <em>'Self-Portrait Without Beard'</em>, sold for <strong>$71.5 million</strong> in 1998. It was also his last self-portrait — a birthday gift for his mother.</p>
+        <p>Van Gogh said about portrait painting: <em>"The only thing in painting that excites me most deeply... makes me feel the infinite more than anything else."</em></p>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:16px;">
+        <div class="question-block">
+          <label>1. How many self-portraits did Van Gogh paint, and in what years?</label>
+          <input type="text" placeholder="He painted..." oninput="markFilled(this)">
+        </div>
+        <div class="question-block">
+          <label>2. Name TWO ways the self-portraits are different from each other.</label>
+          <div class="multi-input">
+            <div class="row"><label>a)</label><input type="text" placeholder="..." oninput="markFilled(this)"></div>
+            <div class="row"><label>b)</label><input type="text" placeholder="..." oninput="markFilled(this)"></div>
+          </div>
+        </div>
+        <div class="question-block">
+          <label>3. Why does one portrait show Van Gogh with a bandage?</label>
+          <textarea placeholder="Because..." oninput="markFilled(this)"></textarea>
+        </div>
+        <div class="question-block">
+          <label>4. How much did 'Self-Portrait Without Beard' sell for?</label>
+          <input type="text" placeholder="$..." oninput="markFilled(this)">
+        </div>
+        <div class="question-block">
+          <label>5. What do Van Gogh's own words tell us about how he felt about portraits?</label>
+          <textarea placeholder="His words tell us that..." oninput="markFilled(this)"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAINTINGS -->
+    <div class="card">
+      <h3>Part B — The Starry Night and Sunflowers</h3>
+      <div class="reading-text">
+        <p><strong>The Starry Night (1889)</strong><br>
+        'The Starry Night' is one of Van Gogh's most famous paintings. He painted it in 1889, when he was living in an asylum. The painting shows a dark blue night sky with big, <em>swirling</em> stars. The stars look like they are moving — they glow and spin in the sky. Below the sky, there is a small, quiet village. In the front, there is a tall dark tree.</p>
+        <p>Van Gogh used thick paint and short, fast brushstrokes. This special technique gives the painting its unique, energetic style. Art historians say the painting feels 'unreal' — like a dream.</p>
+        <p style="margin-top:14px;"><strong>Sunflowers (1888)</strong><br>
+        Van Gogh painted two series of sunflower paintings. The first was painted in Paris in 1887. The second series was painted in Arles in 1888. In the Arles paintings, bright yellow sunflowers sit in a vase.</p>
+        <p>Van Gogh painted the sunflowers for his friend Paul Gauguin. He wanted to decorate the walls of their shared studio — the 'Yellow House'. He described the colors as <em>'chrome yellow and royal blue'</em> — like a stained-glass window. He wrote: <em>"I'd like to do a decoration for the studio. Nothing but large Sunflowers..."</em></p>
+      </div>
+
+      <p style="margin-bottom:14px;font-size:0.92rem;font-weight:700;">Complete the table using information from the texts:</p>
+      <table class="compare-table">
+        <tr>
+          <th style="width:30%">Category</th>
+          <th>The Starry Night</th>
+          <th>Sunflowers</th>
+        </tr>
+        <tr>
+          <td class="cat">Year painted</td>
+          <td><input type="text" placeholder="..." oninput="markFilled(this)"></td>
+          <td><input type="text" placeholder="..." oninput="markFilled(this)"></td>
+        </tr>
+        <tr>
+          <td class="cat">What is in it?</td>
+          <td><input type="text" placeholder="..." oninput="markFilled(this)"></td>
+          <td><input type="text" placeholder="..." oninput="markFilled(this)"></td>
+        </tr>
+        <tr>
+          <td class="cat">Colors used</td>
+          <td><input type="text" placeholder="..." oninput="markFilled(this)"></td>
+          <td><input type="text" placeholder="..." oninput="markFilled(this)"></td>
+        </tr>
+        <tr>
+          <td class="cat">Special technique / style</td>
+          <td><input type="text" placeholder="..." oninput="markFilled(this)"></td>
+          <td><input type="text" placeholder="..." oninput="markFilled(this)"></td>
+        </tr>
+        <tr>
+          <td class="cat">Why was it painted?</td>
+          <td><input type="text" placeholder="—" oninput="markFilled(this)"></td>
+          <td><input type="text" placeholder="..." oninput="markFilled(this)"></td>
+        </tr>
+      </table>
+    </div>
+
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       LESSON 3
+  ══════════════════════════════════════════ -->
+  <div class="lesson" id="lesson-2">
+
+    <div class="lesson-header">
+      <div class="label">Lesson 3 of 3</div>
+      <h2>Vincent and the Doctor</h2>
+      <div class="meta">⏱ 45 minutes &nbsp;|&nbsp; Video + Comprehension + Discussion</div>
+    </div>
+
+    <!-- BEFORE YOU WATCH -->
+    <div class="card yellow">
+      <h3>Before You Watch</h3>
+      <p style="line-height:1.8;">You are going to watch a short scene from a TV show called <strong>Doctor Who</strong>. In this scene, the Doctor travels back in time and brings Vincent van Gogh to a museum in the future. Van Gogh gets to see how famous he becomes.</p>
+      <p style="margin-top:14px;font-style:italic;color:#6D4C41;">💭 Think about this before you watch: <strong>Van Gogh sold only one painting during his life. How do you think he felt about his own art?</strong></p>
+      <div style="margin-top:14px;">
+        <label style="font-weight:700;display:block;margin-bottom:6px;">Your prediction:</label>
+        <textarea placeholder="I think Van Gogh felt..." oninput="markFilled(this)"></textarea>
+      </div>
+    </div>
+
+    <!-- VIDEO -->
+    <div class="card">
+      <h3>🎬 Watch the Video</h3>
+      <div class="video-wrapper" id="video-container">
+        <div class="video-placeholder" id="video-placeholder">
+          <div class="play-icon">▶️</div>
+          <p>Paste the YouTube link for the <em>Doctor Who — "Vincent and the Doctor"</em> scene below.</p>
+          <div class="url-input-area">
+            <input type="text" id="youtube-url" placeholder="e.g. https://www.youtube.com/watch?v=..." style="color:inherit;">
+            <button class="btn-load" onclick="loadVideo()">Load Video</button>
+          </div>
+        </div>
+      </div>
+      <p style="font-size:0.82rem;color:var(--text-muted);margin-top:8px;">💡 Tip: Search YouTube for "Vincent and the Doctor museum scene" to find the clip.</p>
+    </div>
+
+    <!-- WHILE YOU WATCH -->
+    <div class="card">
+      <h3>While You Watch</h3>
+      <p style="margin-bottom:18px;font-size:0.92rem;">Watch the clip carefully. Listen for what the museum expert says about Van Gogh.</p>
+      <div style="display:flex;flex-direction:column;gap:18px;">
+        <div class="question-block">
+          <label>1. Where are they in the scene? Why did they go there?</label>
+          <textarea placeholder="They are in... They went there because..." oninput="markFilled(this)"></textarea>
+        </div>
+        <div class="question-block">
+          <label>2. Write THREE things the museum expert says about Van Gogh's art:</label>
+          <div class="multi-input">
+            <div class="row"><label>a)</label><input type="text" placeholder="He says..." oninput="markFilled(this)"></div>
+            <div class="row"><label>b)</label><input type="text" placeholder="He says..." oninput="markFilled(this)"></div>
+            <div class="row"><label>c)</label><input type="text" placeholder="He says..." oninput="markFilled(this)"></div>
+          </div>
+        </div>
+        <div class="question-block">
+          <label>3. How does Van Gogh react when he hears the expert speak?</label>
+          <textarea placeholder="Van Gogh reacts by..." oninput="markFilled(this)"></textarea>
+        </div>
+        <div class="question-block">
+          <label>4. Why do you think Van Gogh reacted that way? (Your opinion — no wrong answer!)</label>
+          <textarea placeholder="I think he reacted that way because..." oninput="markFilled(this)"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- DISCUSSION -->
+    <div class="card green">
+      <h3>Discussion — Talk with a Partner</h3>
+      <p style="margin-bottom:16px;font-size:0.92rem;">Choose ONE question to discuss with a partner. Click to select it, then talk for 2–3 minutes.</p>
+      <div class="discussion-options">
+        <div class="disc-card" onclick="selectDisc(this)">
+          <div class="num">1</div>
+          <p>Van Gogh never knew he would be famous. How does this make you feel? Do you think it matters if an artist is famous during their lifetime?</p>
+        </div>
+        <div class="disc-card" onclick="selectDisc(this)">
+          <div class="num">2</div>
+          <p>Think of something you are good at. How would you feel if people told you it was amazing — after many years of not believing in yourself?</p>
+        </div>
+        <div class="disc-card" onclick="selectDisc(this)">
+          <div class="num">3</div>
+          <p>Is it sad or happy that Van Gogh got to see the museum in the show? Why?</p>
+        </div>
+      </div>
+      <div style="margin-top:16px;">
+        <label style="font-weight:700;display:block;margin-bottom:6px;">Write a short summary of your discussion:</label>
+        <textarea placeholder="We discussed question __. We think that..." oninput="markFilled(this)"></textarea>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       REVIEW
+  ══════════════════════════════════════════ -->
+  <div class="lesson" id="lesson-3">
+
+    <div class="lesson-header">
+      <div class="label">Unit Review</div>
+      <h2>Review All Three Lessons</h2>
+      <div class="meta">Answer all questions using what you learned in Lessons 1, 2 and 3.</div>
+    </div>
+
+    <div class="card">
+      <h3>Complete Review Questions</h3>
+      <div style="display:flex;flex-direction:column;gap:20px;">
+
+        <div class="question-block">
+          <label>1. What did Van Gogh do before he became an artist?</label>
+          <textarea placeholder="Before becoming an artist, he..." oninput="markFilled(this)"></textarea>
+        </div>
+
+        <div class="question-block">
+          <label>2. Was he an easy person to be friends with? Find one example from the text.</label>
+          <textarea placeholder="No / Yes, because... The text says..." oninput="markFilled(this)"></textarea>
+        </div>
+
+        <div class="question-block">
+          <label>3. What happened to his paintings during his life?</label>
+          <textarea placeholder="During his life, his paintings..." oninput="markFilled(this)"></textarea>
+        </div>
+
+        <div class="question-block">
+          <label>4. Why was Van Gogh sent to an asylum?</label>
+          <textarea placeholder="He was sent to an asylum because..." oninput="markFilled(this)"></textarea>
+        </div>
+
+        <div class="question-block">
+          <label>5. What type of painting did Van Gogh love most? Why?</label>
+          <textarea placeholder="He loved..." oninput="markFilled(this)"></textarea>
+        </div>
+
+        <div class="question-block">
+          <label>6. How many self-portraits did he paint? In which years?</label>
+          <input type="text" placeholder="He painted..." oninput="markFilled(this)">
+        </div>
+
+        <div class="question-block">
+          <label>7. Name TWO ways his self-portraits are different from each other.</label>
+          <div class="multi-input">
+            <div class="row"><label>a)</label><input type="text" placeholder="..." oninput="markFilled(this)"></div>
+            <div class="row"><label>b)</label><input type="text" placeholder="..." oninput="markFilled(this)"></div>
+          </div>
+        </div>
+
+        <div class="question-block">
+          <label>8. How much did his most expensive self-portrait sell for?</label>
+          <input type="text" placeholder="$..." oninput="markFilled(this)">
+        </div>
+
+        <div class="question-block">
+          <label>9. Name TWO paintings from this unit. For each one, write what year it was painted and what is special about it.</label>
+          <textarea placeholder="Painting 1: ... (year: ...) It is special because...&#10;Painting 2: ... (year: ...) It is special because..." style="min-height:90px;" oninput="markFilled(this)"></textarea>
+        </div>
+
+        <div class="question-block">
+          <label>10. Write THREE things the museum expert says about Van Gogh's art (from the video).</label>
+          <div class="multi-input">
+            <div class="row"><label>a)</label><input type="text" placeholder="..." oninput="markFilled(this)"></div>
+            <div class="row"><label>b)</label><input type="text" placeholder="..." oninput="markFilled(this)"></div>
+            <div class="row"><label>c)</label><input type="text" placeholder="..." oninput="markFilled(this)"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCORE PANEL -->
+    <div class="score-panel">
+      <h3>🎨 Unit Complete!</h3>
+      <div id="progress-label" style="font-size:1rem;color:var(--text-muted);margin-bottom:8px;">Track your progress</div>
+      <div class="score-num" id="score-display">—</div>
+      <div style="font-size:0.9rem;color:var(--text-muted);margin-top:4px;">fields filled in</div>
+      <div class="progress-bar-wrap" style="max-width:300px;margin:14px auto 0;">
+        <div class="progress-bar" id="prog-bar" style="width:0%"></div>
+      </div>
+      <button class="btn-save" onclick="updateProgress()">📊 Check My Progress</button>
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+  function showLesson(index, btn) {
+    document.querySelectorAll('.lesson').forEach(l => l.classList.remove('active'));
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('lesson-' + index).classList.add('active');
+    btn.classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function markFilled(el) {
+    if (el.value.trim().length > 0) {
+      el.classList.add('filled');
+    } else {
+      el.classList.remove('filled');
+    }
+  }
+
+  function selectDisc(el) {
+    document.querySelectorAll('.disc-card').forEach(d => d.classList.remove('selected'));
+    el.classList.add('selected');
+  }
+
+  function loadVideo() {
+    const url = document.getElementById('youtube-url').value.trim();
+    let videoId = '';
+    // Extract video ID from various YouTube URL formats
+    const match = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|v\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+    if (match) videoId = match[1];
+    if (!videoId) {
+      alert('Please enter a valid YouTube URL.\nExample: https://www.youtube.com/watch?v=xxxxxx');
+      return;
+    }
+    const container = document.getElementById('video-container');
+    container.innerHTML = `<iframe src="https://www.youtube.com/embed/${videoId}?rel=0" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe>`;
+  }
+
+  function updateProgress() {
+    const allInputs = document.querySelectorAll('input[type="text"], textarea');
+    let filled = 0;
+    allInputs.forEach(el => {
+      if (el.value.trim().length > 0) filled++;
+    });
+    const total = allInputs.length;
+    const pct = Math.round((filled / total) * 100);
+    document.getElementById('score-display').textContent = filled + ' / ' + total;
+    document.getElementById('prog-bar').style.width = pct + '%';
+    document.getElementById('progress-label').textContent = `You filled ${pct}% of the worksheet!`;
+  }
+</script>
+</body>
+</html>
